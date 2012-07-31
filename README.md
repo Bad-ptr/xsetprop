@@ -31,3 +31,8 @@ OK. :)
 --mode or -m : replace for discard old value, append/prepend to append/prepend to old value.  
 --remap : if this flag is specified window will be unmapped and then mapped again. It helps WMs to see changes of properties sometimes.  
 Alternately you can use : xsetprop --id ID --atom ATOMNAME --value VALUE, so you don't need to specify --format and --propname. The same syntax for --string.
+
+# Alternative
+
+Or you can use xprop.patch to make xprop work as you want. :)
+(but see xprop.patch about filenames before apllying)
