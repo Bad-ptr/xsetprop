@@ -1,0 +1,28 @@
+--- xprop.c	2012-07-31 11:24:01.178117974 +0400
++++ xprop.mod	2012-07-31 11:23:19.434784430 +0400
+@@ -1487,11 +1487,20 @@
+ 	break;
+       }
+       case 'a': {
+-	static Atom avalue;
+-	avalue = Parse_Atom(value, False);
+-	type = XA_ATOM;
+-	data = (unsigned char *) &avalue;
+-	nelements = 1;
++	static unsigned long data32[MAXELEMENTS];
++    char * value2 = strdup(value);
++    char * tmp = strtok(value2,",");
++    nelements = 0;
++    while( NULL != tmp ){
++      data32[nelements] = Parse_Atom(tmp, False);
++      nelements +=1;
++      if(nelements >= MAXELEMENTS)
++        break;
++      tmp = strtok(NULL,",");
++    }
++    type = XA_ATOM;
++    data = (unsigned char *) data32;
++    free(value2);
+ 	break;
+       }
+       case 'm':
