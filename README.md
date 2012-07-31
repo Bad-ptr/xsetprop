@@ -3,11 +3,17 @@
 xsetprop -- set window properties. I write it couse xprop can't set list of atoms.  
 
 For example:
+
     xprop -f _NET_WM_STATE 32a -set _NET_WM_STATE _NET_WM_STATE_ABOVE
+
 works fine
+
     xprop -f _NET_WM_STATE 32a -set _NET_WM_STATE _NET_WM_STATE_ABOVE,_NET_WM_SKIP_TASKBAR
+
 don't work
+
     xsetprop --remap --mode='replace' --id=WIN_ID --format='32a' --propname='_NET_WM_STATE' --value='_NET_WM_STATE _NET_WM_STATE_ABOVE,_NET_WM_SKIP_TASKBAR'
+
 OK. :)
 
 # Compilation
