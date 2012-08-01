@@ -175,7 +175,7 @@ free_atomsarray( Atom * aa )
 
 void FatError( const char * _str )
 {
-  fprintf(stderr, "%s\n", _str);
+  fprintf(stderr, "[Fatal Error] %s\n", _str);
   exit(1);
 }
 
