@@ -6,6 +6,6 @@ all: xsetprop
 	@echo "[DONE]"
 
 xsetprop: xsetprop.c
-	gcc `pkg-config --libs --cflags x11 xmu` $^ -o $@
+	gcc $^ -o $@ `pkg-config --libs --cflags x11 xmu`
 
 ### Makefile ends here
