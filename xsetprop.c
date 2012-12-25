@@ -15,6 +15,11 @@
 #include <X11/Xutil.h>
 #include <X11/Xmu/WinUtil.h>
 
+
+#define CONCAT_S_N(x,y) x #y
+#define EVAL_CONCAT_S_V(x,y)  CONCAT_S_N(x,y)
+
+
 #define MAXELEMENTS 64
 
 static int verbose_flag = 0;
@@ -120,7 +125,7 @@ void free_splits( char ** sa )
   free(r);
 }
 
-print_splits( char ** sa )
+void print_splits( char ** sa )
 {
   if( !sa )
     return;
@@ -167,7 +172,7 @@ Atom * splits_to_atomsarray( Display * _dpy, char ** sa )
   return ret;
 }
 
-free_atomsarray( Atom * aa )
+void free_atomsarray( Atom * aa )
 {
   free(aa);
 }
@@ -178,6 +183,12 @@ void FatError( const char * _str )
   fprintf(stderr, "[Fatal Error] %s\n", _str);
   exit(1);
 }
+
+void Warning( const char * _str )
+{
+  fprintf(stderr, "[Warning] %s\n", _str);
+}
+
 
 void set_property( Display * _dpy, Window _wid, const char * _format_str,
                    const char * _prop_name_str, char * _prop_value_str, int _mode )
@@ -204,7 +215,7 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
       case 's':
         {
           if( format != 8 )
-            FatError("size must be 8 for 's';");
+            FatError("size must be 8 for 's'(string type), check --format commandline parameter);");
 
           type = XA_STRING;
           data = (unsigned char *)_prop_value_str;
@@ -216,7 +227,7 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
       case 't':
         {
           if( format != 8 )
-            FatError("size must be 8 for 't';");
+            FatError("size must be 8 for 't'(text type), check --format commandline parameter);");
 
           XTextProperty tproperty;
 
@@ -267,7 +278,8 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
               nelements++;
               if(nelements == MAXELEMENTS)
                 {
-                  FatError("Maximum number of elements reached. List truncated.");
+                  Warning( EVAL_CONCAT_S_V("Maximum number of elements(", MAXELEMENTS)
+                           ") reached. List truncated.");
                   break;
                 }
               tmp = strtok(NULL,",");
@@ -313,7 +325,8 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
               nelements++;
               if(nelements == MAXELEMENTS)
                 {
-                  FatError("Maximum number of elements reached. List truncated.");
+                  Warning( EVAL_CONCAT_S_V("Maximum number of elements(", MAXELEMENTS)
+                           ") reached. List truncated.");
                   break;
                 }
               tmp = strtok(NULL,",");
@@ -340,7 +353,9 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
             }
           else
             {
-              FatError("cannot convert %s argument to Bool");
+              char errstr[256];
+              snprintf(errstr, 255, "cannot convert to Bool: %s", _prop_value_str);
+              FatError(errstr);
               return;
             }
           type = XA_INTEGER;
@@ -372,7 +387,11 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
       case 'm':
 
       default:
-        FatError("wrong format;");
+        {
+          char errstr[256];
+          snprintf(errstr, 255, "wrong --format option: %s", _format_str);
+          FatError(errstr);
+        }
       }
 
   XChangeProperty(_dpy, _wid, prop, type, format, _mode, data, nelements);
@@ -455,7 +474,7 @@ int main (int argc, char **argv)
   if ( NULL == prop_name_str )
     {
       help();
-      FatError("u must specify --propname arg;");
+      FatError("you must specify --propname arg;");
     }
   if( NULL == prop_value_str )
     {
@@ -468,7 +487,7 @@ int main (int argc, char **argv)
  
   Display * dpy = XOpenDisplay(NULL);
   if(!dpy)
-      FatError("unable to connect to displayn");
+    FatError("unable to connect to display");
 
   int screen_num = DefaultScreen(dpy);
   Window root = RootWindow(dpy, screen_num);
