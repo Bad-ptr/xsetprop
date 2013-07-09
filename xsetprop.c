@@ -1,7 +1,11 @@
 /* @(#)xsetprop.c
-   Author: Bad_ptr ( zxnotdead / gmail.com )
-   
+ * Copyright 2012 Constantin Kulikov
+ * 
+ * Author: Constantin Kulikov (Bad_ptr) <zxnotdead@gmail.com>
+ * Date: 2013/07/09 21:11:44
+ * License: GPL either version 2 or any later version
  */
+
 
 #include <stdlib.h>
 #include <stdio.h>

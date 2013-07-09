@@ -1,6 +1,9 @@
-### Makefile --- 
+## Copyright 2012 Constantin Kulikov
+## 
+## Author: Constantin Kulikov (Bad_ptr) <zxnotdead@gmail.com>
+## Date: 2013/07/09 21:11:22
+## License: GPL either version 2 or any later version
 
-## Author: Bad_ptr
 
 all: xsetprop
 	@echo "[DONE]"

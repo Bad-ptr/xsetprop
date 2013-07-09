@@ -1,3 +1,12 @@
+Copyright 2012 Constantin Kulikov  
+
+Author: Constantin Kulikov (Bad_ptr) <zxnotdead@gmail.com>  
+Date: 2013/07/09 21:10:53  
+License: GPL either version 2 or any later version  
+Keywords: xprop, xlib  
+X-URL: https://github.com/Bad-ptr/xsetprop  
+
+
 # Intro
 
 xsetprop -- set window properties. I write it couse xprop can't set list of atoms.  
