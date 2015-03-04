@@ -33,12 +33,12 @@ OK. :)
 
     xsetprop xsetprop [--id=[window_id]] (--format=<32a> --propname=<WM_ICON_NAME>|--atom <ATOMNAME>|--string <PROP_NAME>) --value=<value> [--mode=[replace|append|prepend]] [--remap]
 
-`--id` or `-i` (optional): window id, which you can get from xwininfo. If omitted -- you will be prompted to select a window with mouse.
-`--format` or `-f` : format of a property. 32a for atoms, 8s for strings, etc(See man xprop).
-`--propname` or `-p` : name of a property you want to set.
-`--value` or `-v` : A new value or a value to append/prepend of property(see --mode option).
-`--mode` or `-m` (optional): 'replace' or no specify for discarding the old value, append/prepend to append/prepend to the old value.
-`--remap` (optional): if this flag is specified the window will be unmapped and then mapped again after changing the propertyes(It helps WMs to see changes).
+`--id` or `-i` (optional): window id, which you can get from xwininfo. If omitted -- you will be prompted to select a window with mouse.  
+`--format` or `-f` : format of a property. 32a for atoms, 8s for strings, etc(See man xprop).  
+`--propname` or `-p` : name of a property you want to set.  
+`--value` or `-v` : A new value or a value to append/prepend of property(see --mode option).  
+`--mode` or `-m` (optional): 'replace' or no specify for discarding the old value, append/prepend to append/prepend to the old value.  
+`--remap` (optional): if this flag is specified the window will be unmapped and then mapped again after changing the propertyes(It helps WMs to see changes).  
 
 A shorter form:
 
