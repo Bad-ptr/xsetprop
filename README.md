@@ -9,7 +9,7 @@ X-URL: https://github.com/Bad-ptr/xsetprop
 
 # Intro
 
-xsetprop -- set window properties. I write it couse xprop can't set list of atoms.  
+xsetprop -- set window properties. I write it couse the xprop can't set a list of atoms.  
 
 For example:
 
@@ -31,17 +31,21 @@ OK. :)
 
 # Usage
 
-    xsetprop --id=window_id --format=32a --propname=WM_ICON_NAME --value=test [--mode=[replace]|append|prepend] [--remap]
+    xsetprop xsetprop [--id=[window_id]] (--format=<32a> --propname=<WM_ICON_NAME>|--atom <ATOMNAME>|--string <PROP_NAME>) --value=<value> [--mode=[replace|append|prepend]] [--remap]
 
---id or -i : window id, you can get it from xwininfo.  
---format or -f : format of property value it's like in xprop. 32a for atoms, 8s for strings, etc. See man xprop.  
---propname or -p : name of property you want to set.  
---value or -v : new value of property(if --mode=replace or not specified) or value to append or prepend to property(if --mode=append or --mode=prepend).  
---mode or -m : replace for discard old value, append/prepend to append/prepend to old value.  
---remap : if this flag is specified window will be unmapped and then mapped again. It helps WMs to see changes of properties sometimes.  
-Alternately you can use : xsetprop --id ID --atom ATOMNAME --value VALUE, so you don't need to specify --format and --propname. The same syntax for --string.
+`--id` or `-i` (optional): window id, which you can get from xwininfo. If omitted -- you will be prompted to select a window with mouse.
+`--format` or `-f` : format of a property. 32a for atoms, 8s for strings, etc(See man xprop).
+`--propname` or `-p` : name of a property you want to set.
+`--value` or `-v` : A new value or a value to append/prepend of property(see --mode option).
+`--mode` or `-m` (optional): 'replace' or no specify for discarding the old value, append/prepend to append/prepend to the old value.
+`--remap` (optional): if this flag is specified the window will be unmapped and then mapped again after changing the propertyes(It helps WMs to see changes).
+
+A shorter form:
+
+    xsetprop [--id=[window_id]] (--atom <ATOMNAME>|--string <PROP_NAME>) [--value <VALUE>]
+
+(you don't need to specify --format and --propname).
 
 # Alternative
 
 Or you can use xprop.patch to make xprop work as you want. :)
-(but see xprop.patch about filenames before apllying)

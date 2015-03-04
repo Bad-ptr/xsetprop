@@ -51,13 +51,13 @@ static const char * opt_str = "hi:p:v:f:m:";
 void help()
 {
   printf("%s", "Usage: xsetprop [--id=[window_id]] (--format=<32a> --propname=<WM_ICON_NAME>|--atom <ATOMNAME>|--string <PROP_NAME>) --value=<value> [--mode=[replace|append|prepend]] [--remap]\
-\n --id or -i (optional): window id, you can get it from xwininfo. If omitted -- you will be prompted to select a window with mouse.\
-\n --format or -f : format of property value it's like in xprop. 32a for atoms, 8s for strings, etc. See man xprop.\
-\n --propname or -p : name of property you want to set.\
-\n --value or -v : new value of property(if --mode=replace or not specified) or value to append or prepend to property(if --mode=append or --mode=prepend).\
-\n --mode or -m (optional): replace for discard old value, append/prepend to append/prepend to old value.\
-\n --remap (optional): if this flag is specified window will be unmapped and then mapped again. It helps WMs to see changes of properties sometimes.\
-\nAlternately you can use : xsetprop --id ID --atom ATOMNAME --value VALUE, so you don't need to specify --format and --propname. The same syntax for --string.\n");
+\n --id or -i (optional): window id, which you can get from xwininfo. If omitted -- you will be prompted to select a window with mouse.\
+\n --format or -f : format of a property. 32a for atoms, 8s for strings, etc(See man xprop).\
+\n --propname or -p : name of a property you want to set.\
+\n --value or -v : A new value or a value to append/prepend of property(see --mode option).\
+\n --mode or -m (optional): 'replace' or no specify for discarding the old value, append/prepend to append/prepend to the old value.\
+\n --remap (optional): if this flag is specified the window will be unmapped and then mapped again after changing the propertyes(It helps WMs to see changes).\
+\nA shorter form: xsetprop [--id=[window_id]] (--atom <ATOMNAME>|--string <PROP_NAME>) [--value <VALUE>], (you don't need to specify --format and --propname).\n");
   fflush(stdout);
 }
 
@@ -220,12 +220,12 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
     format = s;
 
   if( c != '\0' )
-    switch( c ) /* This part is mostly copied from xprop :p */
+    switch( c ) /* This part is mostly copied from the xprop :p */
       {
       case 's':
         {
           if( format != 8 )
-            FatError("size must be 8 for 's'(string type), check --format commandline parameter);");
+            FatError("the 'size' must be 8 for the 's'(string type), check the '--format' commandline parameter;");
 
           type = XA_STRING;
           data = (unsigned char *)_prop_value_str;
@@ -237,13 +237,19 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
       case 't':
         {
           if( format != 8 )
-            FatError("size must be 8 for 't'(text type), check --format commandline parameter);");
+            FatError("the 'size' must be 8 for the 't'(text type), check the '--format' commandline parameter;");
 
           XTextProperty tproperty;
 
           if( XmbTextListToTextProperty(_dpy, &_prop_value_str, 1,
                                         XStdICCTextStyle, &tproperty) != Success )
-            FatError("cannot convert argument to STRING or COMPOUND_TEXT.");
+            {
+              char errstr[1024];
+              snprintf(errstr, 1023,
+                       "cannot use the <%s> value as the 'STRING' or the 'COMPOUND_TEXT' type.",
+                       _prop_value_str);
+              FatError(errstr);
+            }
 
           type = tproperty.encoding;
           data = tproperty.value;
@@ -288,8 +294,8 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
               nelements++;
               if(nelements == MAXELEMENTS)
                 {
-                  Warning( EVAL_CONCAT_S_V("Maximum number of elements(", MAXELEMENTS)
-                           ") reached. List truncated.");
+                  Warning( EVAL_CONCAT_S_V("the maximum number of elements(", MAXELEMENTS)
+                           ") is reached -- the value list will be truncated.");
                   break;
                 }
               tmp = strtok(NULL,",");
@@ -335,8 +341,8 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
               nelements++;
               if(nelements == MAXELEMENTS)
                 {
-                  Warning( EVAL_CONCAT_S_V("Maximum number of elements(", MAXELEMENTS)
-                           ") reached. List truncated.");
+                  Warning( EVAL_CONCAT_S_V("the maximum number of elements(", MAXELEMENTS)
+                           ") is reached -- the value list will be truncated.");
                   break;
                 }
               tmp = strtok(NULL,",");
@@ -364,7 +370,7 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
           else
             {
               char errstr[256];
-              snprintf(errstr, 255, "cannot convert to Bool: %s", _prop_value_str);
+              snprintf(errstr, 255, "can not use the <%s> value as the 'boolean' type.", _prop_value_str);
               FatError(errstr);
               return;
             }
@@ -399,7 +405,7 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
       default:
         {
           char errstr[256];
-          snprintf(errstr, 255, "wrong --format option: %s", _format_str);
+          snprintf(errstr, 255, "The wrong '--format' option: %s", _format_str);
           FatError(errstr);
         }
       }
@@ -545,7 +551,7 @@ int main (int argc, char **argv)
 
   Display * dpy = XOpenDisplay(NULL);
   if(!dpy)
-    FatError("unable to connect to display");
+    FatError("failed to connect to a display");
 
   int screen = DefaultScreen(dpy);
   Window root = RootWindow(dpy, screen);
