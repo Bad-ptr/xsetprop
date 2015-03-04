@@ -68,6 +68,7 @@ size_t skip_seps( const char * _str, const char * _seps )
     {
       if( strchr( _seps, *_str ) == NULL )
         break;
+
       _str += 1;
       ret += 1;
     }
@@ -90,27 +91,27 @@ char ** split_str( char * _str, const char * _seps )
       size_t tmp = skip_seps( tptr, _seps );
       tptr += tmp;
       len -= tmp;
-    
+
       if( len == 0 )
         {
           ret[n_ret] = NULL;
           return ret;
         }
 
-      tmp = strcspn( tptr, _seps );      
+      tmp = strcspn( tptr, _seps );
 
       ret[n_ret] = malloc(sizeof(char)*(tmp+1));
       memcpy(ret[n_ret], tptr, tmp);
       ret[n_ret][tmp] = '\0';
       n_ret += 1;
-          
+
       if( n_ret % 8 == 0 )
         {
           ret = realloc(ret, n_ret + 8);
         }
-      
+
       len -= tmp;
-      
+
       tptr += tmp;
     }
 
@@ -122,7 +123,7 @@ void free_splits( char ** sa )
 {
   if( !sa )
     return;
-  
+
   void * r = sa;
   while(*sa != NULL)
     {
@@ -136,7 +137,7 @@ void print_splits( char ** sa )
 {
   if( !sa )
     return;
-  
+
   while(*sa != NULL)
     {
       printf("%s\n", *sa);
@@ -147,7 +148,7 @@ void print_splits( char ** sa )
 size_t splits_num( char **sa )
 {
   size_t ret = 0;
-  
+
   if( !sa )
     return ret;
 
@@ -169,7 +170,7 @@ Atom * splits_to_atomsarray( Display * _dpy, char ** sa )
     i = 0;
 
   Atom * ret = malloc(sizeof(Atom)*n);
-  
+
   while( i < n )
     {
       ret[i] = XInternAtom(_dpy, sa[i], 0);
@@ -214,7 +215,7 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
   unsigned char * data = NULL;
   int nelements = 0;
 
-  
+
   if( s != 0 )
     format = s;
 
@@ -247,7 +248,7 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
           type = tproperty.encoding;
           data = tproperty.value;
           nelements = tproperty.nitems;
-        
+
           break;
         }
 
@@ -266,9 +267,9 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
             {
             case 8:
               data8[0] = intvalue; data = (unsigned char *) data8; break;
-            case 16:    
+            case 16:
               data16[0] = intvalue; data = (unsigned char *) data16; break;
-            case 32:    
+            case 32:
               data32[0] = intvalue; data = (unsigned char *) data32; break;
             }
           tmp = strtok(NULL,",");
@@ -279,9 +280,9 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
                 {
                 case 8:
                   data8[nelements] = intvalue; break;
-                case 16:    
+                case 16:
                   data16[nelements] = intvalue; break;
-                case 32:    
+                case 32:
                   data32[nelements] = intvalue; break;
                 }
               nelements++;
@@ -293,12 +294,12 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
                 }
               tmp = strtok(NULL,",");
             }
-	
+
           type = XA_CARDINAL;
           free(value2);
           break;
         }
-        
+
       case 'i':
         {
           static unsigned char data8[MAXELEMENTS];
@@ -313,9 +314,9 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
             {
             case 8:
               data8[0] = intvalue; data = (unsigned char *) data8; break;
-            case 16:    
+            case 16:
               data16[0] = intvalue; data = (unsigned char *) data16; break;
-            case 32:    
+            case 32:
               data32[0] = intvalue; data = (unsigned char *) data32; break;
             }
           tmp = strtok(NULL,",");
@@ -326,9 +327,9 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
                 {
                 case 8:
                   data8[nelements] = intvalue; break;
-                case 16:    
+                case 16:
                   data16[nelements] = intvalue; break;
-                case 32:    
+                case 32:
                   data32[nelements] = intvalue; break;
                 }
               nelements++;
@@ -340,7 +341,7 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
                 }
               tmp = strtok(NULL,",");
             }
-	
+
           type = XA_INTEGER;
           free(value2);
           break;
@@ -368,7 +369,7 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
               return;
             }
           type = XA_INTEGER;
-          
+
           switch (format)
             {
             case 8:
@@ -466,7 +467,7 @@ int main (int argc, char **argv)
 
   int mode = PropModeReplace; // PropModeReplace, PropModePrepend, PropModeAppend
 
- 
+
   int lindex;
   int opt;
   while( -1 != (opt = getopt_long_only( argc, argv, opt_str, long_opts, &lindex)) )
@@ -541,7 +542,7 @@ int main (int argc, char **argv)
 
   if( NULL == format_str )
     format_str = "32a";
- 
+
   Display * dpy = XOpenDisplay(NULL);
   if(!dpy)
     FatError("unable to connect to display");
@@ -569,7 +570,7 @@ clicking the mouse in that window.\n");
     }
 
   set_property(dpy, window_id, format_str, prop_name_str, prop_value_str, mode);
-  
+
   if( remap_flag == 1 )
     {
       XUnmapWindow(dpy, window_id);
