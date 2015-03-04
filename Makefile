@@ -1,5 +1,5 @@
 ## Copyright 2012 Constantin Kulikov
-## 
+##
 ## Author: Constantin Kulikov (Bad_ptr) <zxnotdead@gmail.com>
 ## Date: 2013/07/09 21:11:22
 ## License: GPL either version 2 or any later version
@@ -10,7 +10,7 @@ all: xsetprop
 
 xsetprop: xsetprop.c
 	@echo "$(CC) $^ => $@"
-	$(CC) $^ -o $@ `pkg-config --libs --cflags x11 xmu` $(CFLAGS)
+	$(CC) $(CFLAGS) $^ `pkg-config --libs --cflags x11 xmu` -o $@
 
 
 .PHONY: clean rebuild install uninstall
