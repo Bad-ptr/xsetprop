@@ -1,6 +1,6 @@
 /* @(#)xsetprop.c
  * Copyright 2012 Constantin Kulikov
- * 
+ *
  * Author: Constantin Kulikov (Bad_ptr) <zxnotdead@gmail.com>
  * Date: 2013/07/09 21:11:44
  * License: GPL either version 2 or any later version
@@ -17,6 +17,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
+#include <X11/cursorfont.h>
 #include <X11/Xmu/WinUtil.h>
 
 
@@ -28,13 +29,14 @@
 
 static int verbose_flag = 0;
 static int remap_flag = 0;
+static int id_flag = 0;
 
 static struct option long_opts[] =
   {
     {"verbose",  no_argument,       &verbose_flag, 1},
     {"remap",    no_argument,       &remap_flag, 1},
     {"help",     no_argument,       NULL, 'h'},
-    {"id",       required_argument, NULL, 'i'},
+    {"id",       optional_argument, NULL, 'i'},
     {"propname", required_argument, NULL, 'p'},
     {"value",    required_argument, NULL, 'v'},
     {"format",   required_argument, NULL, 'f'},
@@ -48,14 +50,15 @@ static const char * opt_str = "hi:p:v:f:m:";
 
 void help()
 {
-  printf("Usage: xsetprop --id=window_id --format=32a --propname=WM_ICON_NAME --value=test [--mode=[replace]|append|prepend] [--remap]\
-\n --id or -i : window id, you can get it from xwininfo.\
+  printf("%s", "Usage: xsetprop [--id=[window_id]] (--format=<32a> --propname=<WM_ICON_NAME>|--atom <ATOMNAME>|--string <PROP_NAME>) --value=<value> [--mode=[replace|append|prepend]] [--remap]\
+\n --id or -i (optional): window id, you can get it from xwininfo. If omitted -- you will be prompted to select a window with mouse.\
 \n --format or -f : format of property value it's like in xprop. 32a for atoms, 8s for strings, etc. See man xprop.\
 \n --propname or -p : name of property you want to set.\
 \n --value or -v : new value of property(if --mode=replace or not specified) or value to append or prepend to property(if --mode=append or --mode=prepend).\
-\n --mode or -m : replace for discard old value, append/prepend to append/prepend to old value.\
-\n --remap : if this flag is specified window will be unmapped and then mapped again. It helps WMs to see changes of properties sometimes.\
+\n --mode or -m (optional): replace for discard old value, append/prepend to append/prepend to old value.\
+\n --remap (optional): if this flag is specified window will be unmapped and then mapped again. It helps WMs to see changes of properties sometimes.\
 \nAlternately you can use : xsetprop --id ID --atom ATOMNAME --value VALUE, so you don't need to specify --format and --propname. The same syntax for --string.\n");
+  fflush(stdout);
 }
 
 size_t skip_seps( const char * _str, const char * _seps )
@@ -185,12 +188,14 @@ void free_atomsarray( Atom * aa )
 void FatError( const char * _str )
 {
   fprintf(stderr, "[Fatal Error] %s\n", _str);
+  fflush(stderr);
   exit(1);
 }
 
 void Warning( const char * _str )
 {
   fprintf(stderr, "[Warning] %s\n", _str);
+  fflush(stderr);
 }
 
 
@@ -402,9 +407,58 @@ void set_property( Display * _dpy, Window _wid, const char * _format_str,
 
 }
 
+Window select_window(Display * dpy, int screen)
+{
+  int status;
+  Cursor cursor;
+  XEvent event;
+  Window target_win = None, root = RootWindow(dpy,screen);
+  int buttons = 0;
+
+  /* Make the target cursor */
+  cursor = XCreateFontCursor(dpy, XC_crosshair);
+
+  /* Grab the pointer using target cursor, letting it room all over */
+  status = XGrabPointer(dpy, root, False,
+                        ButtonPressMask|ButtonReleaseMask, GrabModeSync,
+                        GrabModeAsync, root, cursor, CurrentTime);
+
+  if (status != GrabSuccess)
+    FatError("can't grab the mouse.");
+
+  /* Let the user select a window... */
+  while ((target_win == None) || (buttons != 0))
+    {
+      /* allow one more event */
+      XAllowEvents(dpy, SyncPointer, CurrentTime);
+      XWindowEvent(dpy, root, ButtonPressMask|ButtonReleaseMask, &event);
+      switch (event.type)
+        {
+        case ButtonPress:
+          if (target_win == None)
+            {
+              target_win = event.xbutton.subwindow; /* window selected */
+              if (target_win == None)
+                target_win = root;
+            }
+          buttons++;
+          break;
+        case ButtonRelease:
+          if (buttons > 0) /* there may have been some down before we started */
+            buttons--;
+          break;
+        }
+    }
+
+  XUngrabPointer(dpy, CurrentTime);/* Done with pointer */
+
+  return target_win;
+}
+
+
 int main (int argc, char **argv)
 {
-  Window window_id = 0;
+  Window window_id = None;
   char * prop_name_str = NULL;
   char * prop_value_str = NULL;
   char * format_str = NULL;
@@ -424,49 +478,51 @@ int main (int argc, char **argv)
           return 0;
           break;
         case 'i':
-          window_id = strtoul(optarg, NULL, 0);
+          if (optarg && strnlen(optarg, 1) > 0)
+            {
+              window_id = strtoul(optarg, NULL, 0);
+            }
+          else
+            {
+              id_flag = 1;
+            }
           break;
         case 'p':
-          prop_name_str = optarg;
+          if (optarg)
+            prop_name_str = optarg;
           break;
         case 'v':
-          prop_value_str = optarg;
+          if (optarg)
+            prop_value_str = optarg;
           break;
         case 'f':
           if(optarg)
-            {
-              format_str = optarg;
-            }
+            format_str = optarg;
           break;
         case 'm':
           if( optarg )
             {
               mode_str = optarg;
-              if( mode_str )
+              if( strncmp( mode_str, "append", strnlen("append", strnlen(mode_str,8)) ) == 0 )
                 {
-                  if( strncmp( mode_str, "append", strnlen("append", strlen(mode_str)) ) == 0 )
-                    {
-                      mode = PropModeAppend;
-                    }
-                  else if( strncmp( mode_str, "prepend", strnlen("prepend", strlen(mode_str)) ) == 0 )
-                    {
-                      mode = PropModePrepend;
-                    }
+                  mode = PropModeAppend;
+                }
+              else if( strncmp( mode_str, "prepend", strnlen("prepend", strnlen(mode_str,8)) ) == 0 )
+                {
+                  mode = PropModePrepend;
                 }
             }
           break;
         case 'a':
           if( optarg )
-            {
-              prop_name_str = optarg;
-            }
+            prop_name_str = optarg;
+
           format_str = "32a";
           break;
         case 's':
           if( optarg )
-            {
-              prop_name_str = optarg;
-            }
+            prop_name_str = optarg;
+
           format_str = "8s";
           break;
 
@@ -481,24 +537,31 @@ int main (int argc, char **argv)
       FatError("you must specify --propname arg;");
     }
   if( NULL == prop_value_str )
-    {
-      prop_value_str = "\0";
-    }
+    prop_value_str = "\0";
+
   if( NULL == format_str )
-    {
-      format_str = "32a";
-    }
+    format_str = "32a";
  
   Display * dpy = XOpenDisplay(NULL);
   if(!dpy)
     FatError("unable to connect to display");
 
-  int screen_num = DefaultScreen(dpy);
-  Window root = RootWindow(dpy, screen_num);
+  int screen = DefaultScreen(dpy);
+  Window root = RootWindow(dpy, screen);
 
-  if( 0 == window_id )
+  if( None == window_id )
     {
-      window_id = root;
+      if (1 == id_flag)
+        {
+          window_id = root;
+        }
+      else
+        {
+          printf("%s", "Please select the window you want to set properties for by \
+clicking the mouse in that window.\n");
+          fflush(stdout);
+          window_id = select_window(dpy, screen);
+        }
     }
   else
     {
