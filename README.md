@@ -34,6 +34,7 @@ OK. :)
     xsetprop xsetprop [--id=[window_id]] (--format=<32a> --propname=<WM_ICON_NAME>|--atom <ATOMNAME>|--string <PROP_NAME>) --value=<value> [--mode=[replace|append|prepend]] [--remap]
 
 `--id` or `-i` (optional): window id, which you can get from xwininfo. If omitted -- you will be prompted to select a window with mouse.  
+`--root` : use the root window.  
 `--format` or `-f` : format of a property. 32a for atoms, 8s for strings, etc(See man xprop).  
 `--propname` or `-p` : name of a property you want to set.  
 `--value` or `-v` : A new value or a value to append/prepend of property(see --mode option).  
