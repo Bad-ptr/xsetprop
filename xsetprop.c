@@ -35,6 +35,7 @@ static struct option long_opts[] =
   {
     {"verbose",  no_argument,       &verbose_flag, 1},
     {"remap",    no_argument,       &remap_flag, 1},
+    {"root",     no_argument,       &id_flag, 1},
     {"help",     no_argument,       NULL, 'h'},
     {"id",       optional_argument, NULL, 'i'},
     {"propname", required_argument, NULL, 'p'},
@@ -52,6 +53,7 @@ void help()
 {
   printf("%s", "Usage: xsetprop [--id=[window_id]] (--format=<32a> --propname=<WM_ICON_NAME>|--atom <ATOMNAME>|--string <PROP_NAME>) --value=<value> [--mode=[replace|append|prepend]] [--remap]\
 \n --id or -i (optional): window id, which you can get from xwininfo. If omitted -- you will be prompted to select a window with mouse.\
+\n --root : use the root window.\
 \n --format or -f : format of a property. 32a for atoms, 8s for strings, etc(See man xprop).\
 \n --propname or -p : name of a property you want to set.\
 \n --value or -v : A new value or a value to append/prepend of property(see --mode option).\
